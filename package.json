@@ -1,0 +1,24 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TribeOfBenjamin/Employee-Tracker.git"
+  },
+  "author": "Benjamin Vasko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TribeOfBenjamin/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/TribeOfBenjamin/Employee-Tracker#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "inquirer": "^7.2.0",
+    "mysql": "^2.18.1"
+  }
+}
