@@ -140,7 +140,7 @@ function addEmployee() {
 
 async function viewEmployees() {
 
-    let allEmployees = await query("SELECT * FROM employee");
+    let allEmployees = await query("SELECT * FROM employee FULL OUTER JOIN role ON role.id = employee.role_id");
     // REF: Learned how to make a "title" for the table by referencing the npm console.table docs
     console.table("All Employees", allEmployees);
 }
