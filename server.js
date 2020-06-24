@@ -152,7 +152,6 @@ async function viewEmployees() {
 
 async function viewEmployeesByDepartment() {
 
-    // NOT ORDERED BY DEPARTMENT YET (BY FIRST NAME)
     let allEmployeesByDepartment = await query(`SELECT employee.id,employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, concat(manager.first_name, " ", manager.last_name) AS manager FROM role INNER JOIN department ON department.id = role.department_id RIGHT JOIN employee ON role.id = employee.role_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY department.name`);
     console.table("Employees by Department", allEmployeesByDepartment);
 
@@ -161,7 +160,6 @@ async function viewEmployeesByDepartment() {
 
 async function viewEmployeesByManager() {
 
-    // NOT ORDERED BY MANAGER YET (BY FIRST NAME)
     let allEmployeesByManager = await query(`SELECT employee.id,employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, concat(manager.first_name, " ", manager.last_name) AS manager FROM role INNER JOIN department ON department.id = role.department_id RIGHT JOIN employee ON role.id = employee.role_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY manager.last_name`);
     console.table("Employees by Manager", allEmployeesByManager);
 
