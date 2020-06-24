@@ -29,15 +29,21 @@ function startOptions() {
             name: "startOptions",
             type: "list",
             message: "Would you like to do?",
-            choices: ["Add a department", "Add a role", "Add an employee", "View all employees", "View employees by department", "View employees by manager", "Update an employee's role"]
+            choices: ["Add a department", "View all departments", "Add a role", "View all roles" , "Add an employee", "View all employees", "View employees by department", "View employees by manager", "Update an employee's role"]
         })
         .then(answer => {
             switch (answer.startOptions) {
                 case "Add a department":
                     addDepartment();
                     break;
+                case "View all departments":
+                    viewDepartments();
+                    break;
                 case "Add a role":
                     addRole();
+                    break;
+                case "View all roles":
+                    viewRoles();
                     break;
                 case "Add an employee":
                     addEmployee();
@@ -79,6 +85,16 @@ function addDepartment() {
         });
 };
 
+// Displays a table with all departments
+async function viewDepartments() {
+
+    let allDepartments = await query("SELECT * FROM department");
+    // REF: Learned how to make a "title" for the table by referencing the npm console.table docs
+    console.table("All Departments", allDepartments);
+
+    startOptions();
+}
+
 // Adds a role to the database
 function addRole() {
     inquirer
@@ -92,13 +108,19 @@ function addRole() {
                 name: "roleSalary",
                 type: "input",
                 message: "What is the salary for this role?"
+            },
+            {
+                name: "roleDepartmentId",
+                type: "input",
+                message: "What is department ID number for this role?"
             }
         ])
         .then(answer => {
             connection.query("INSERT INTO role SET ?",
                 {
                     title: answer.roleTitle,
-                    salary: answer.roleSalary
+                    salary: answer.roleSalary,
+                    department_id: answer.roleDepartmentId
                 },
                 function (err) {
                     if (err) throw err;
@@ -108,6 +130,16 @@ function addRole() {
             );
         });
 };
+
+// Displays a table with all roles
+async function viewRoles() {
+
+    let allRoles = await query("SELECT * FROM role");
+    // REF: Learned how to make a "title" for the table by referencing the npm console.table docs
+    console.table("All Roles", allRoles);
+
+    startOptions();
+}
 
 // Adds an employee to the database
 function addEmployee() {
@@ -171,42 +203,24 @@ function updateEmployee() {
     inquirer
         .prompt([
             {
-                name: "updateEmployeeFirstName",
+                name: "updateEmployeeId",
                 type: "input",
-                message: "What is the employee's first name?"
+                message: "What is the ID number of the employee?"
             },
             {
-                name: "updateEmployeeLastName",
+                name: "updateEmployeeRole",
                 type: "input",
-                message: "What is the employee's last name?"
+                message: "What is the role's ID number you'd like to assign to this employee?"
             },
-            {
-                name: "updateEmployeeTitle",
-                type: "input",
-                message: "What is the title of the new role?"
-            },
-            {
-                name: "updateEmployeeSalary",
-                type: "input",
-                message: "What is the salary of the new role?"
-            }
         ])
         .then(answer => {
-            connection.query("UPDATE role SET title = ?, salary = ? WHERE employee.first_name = ?",
-                {
-                    title: answer.updateEmployeeTitle,
-                    salary: answer.updateEmployeeSalary,
-                    first_name: answer.updateEmployeeFirstName
-                },
+            connection.query("UPDATE employee SET role_id = ? WHERE id = ?", [answer.updateEmployeeRole, answer.updateEmployeeId],
                 function (err) {
                     if (err) throw err;
-                    console.log("SUCCESS!");
+                    console.log("Employee " + answer.updateEmployeeId + "'s role has been updated!");
+                    viewEmployees();
                     startOptions();
                 }
             );
         });
 }
-
-// UPDATE role SET title = ?, salary = ? WHERE first_name IN (SELECT first_name FROM employee = ?) AND last_name IN (SELECT last_name FROM employee WHERE first_name = ?)
-
-// UPDATE role SET title = ?, salary = ? WHERE first_name IN employee = ?
