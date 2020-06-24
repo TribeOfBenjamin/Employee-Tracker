@@ -29,7 +29,7 @@ function startOptions() {
             name: "startOptions",
             type: "list",
             message: "Would you like to do?",
-            choices: ["Add a department", "Add a role", "Add an employee", "View all employees", "View employees by department", "View employees by manager"]
+            choices: ["Add a department", "Add a role", "Add an employee", "View all employees", "View employees by department", "View employees by manager", "Update an employee's role"]
         })
         .then(answer => {
             switch (answer.startOptions) {
@@ -50,6 +50,9 @@ function startOptions() {
                     break;
                 case "View employees by manager":
                     viewEmployeesByManager();
+                    break;
+                case "Update an employee's role":
+                    updateEmployee();
                     break;
                 default:
                     break;
@@ -137,19 +140,23 @@ function addEmployee() {
         });
 };
 
-
+// Displays a table with all employees; able to be sorted by department and by manager
 async function viewEmployees() {
 
-    let allEmployees = await query("SELECT * FROM employee FULL OUTER JOIN role ON role.id = employee.role_id");
+    let allEmployees = await query("SELECT employee.id, first_name, last_name, name AS department, title, salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id");
     // REF: Learned how to make a "title" for the table by referencing the npm console.table docs
     console.table("All Employees", allEmployees);
+
+    startOptions();
 }
 
 async function viewEmployeesByDepartment() {
 
     // NOT ORDERED BY DEPARTMENT YET (BY FIRST NAME)
-    let allEmployeesByDepartment = await query("SELECT * FROM employee ORDER BY first_name");
+    let allEmployeesByDepartment = await query("SELECT employee.id, first_name, last_name, name AS department, title, salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY name");
     console.table("Employees by Department", allEmployeesByDepartment);
+
+    startOptions();
 }
 
 async function viewEmployeesByManager() {
@@ -157,4 +164,51 @@ async function viewEmployeesByManager() {
     // NOT ORDERED BY MANAGER YET (BY FIRST NAME)
     let allEmployeesByManager = await query("SELECT * FROM employee ORDER BY first_name");
     console.table("Employees by Manager", allEmployeesByManager);
+
+    startOptions();
 }
+
+// Updates an employee's role
+function updateEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: "updateEmployeeFirstName",
+                type: "input",
+                message: "What is the employee's first name?"
+            },
+            {
+                name: "updateEmployeeLastName",
+                type: "input",
+                message: "What is the employee's last name?"
+            },
+            {
+                name: "updateEmployeeTitle",
+                type: "input",
+                message: "What is the title of the new role?"
+            },
+            {
+                name: "updateEmployeeSalary",
+                type: "input",
+                message: "What is the salary of the new role?"
+            }
+        ])
+        .then(answer => {
+            connection.query("UPDATE role SET title = ?, salary = ? WHERE first_name IN",
+                {
+                    title: answer.updateEmployeeTitle,
+                    salary: answer.updateEmployeeSalary,
+                    first_name: answer.updateEmployeeFirstName
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("SUCCESS!");
+                    startOptions();
+                }
+            );
+        });
+}
+
+// UPDATE role SET title = ?, salary = ? WHERE first_name IN (SELECT first_name FROM employee = ?) AND last_name IN (SELECT last_name FROM employee WHERE first_name = ?)
+
+// UPDATE role SET title = ?, salary = ? WHERE first_name IN employee = ?
