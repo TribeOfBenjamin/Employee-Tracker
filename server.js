@@ -2,6 +2,7 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const util = require("util");
 const consoleTable = require("console.table");
+const colors = require('colors');
 
 // Creates the connection information for the sql database
 let connection = mysql.createConnection({
@@ -22,7 +23,6 @@ connection.connect(function (err) {
 });
 
 // Allows the user to select what they would like to do (add, view, update)
-// MAYBE HAVE ADD, VIEW, UPDATE AS OPTIONS THAT THEN PRESENT OPTIONS FOR THAT TYPE?
 function startOptions() {
     inquirer
         .prompt({
@@ -78,8 +78,9 @@ function addDepartment() {
             connection.query("INSERT INTO department SET name = ?", [answer.departmentName],
                 function (err) {
                     if (err) throw err;
-                    console.log("The " + answer.departmentName + " department was successfully added.");
-                    startOptions();
+                    console.log("The " + answer.departmentName + " department was successfully added.".green);
+
+                    viewDepartments();
                 }
             );
         });
@@ -90,7 +91,7 @@ async function viewDepartments() {
 
     let allDepartments = await query("SELECT * FROM department");
     // REF: Learned how to make a "title" for the table by referencing the npm console.table docs
-    console.table("All Departments", allDepartments);
+    console.table("All Departments".green, allDepartments);
 
     startOptions();
 }
@@ -124,8 +125,9 @@ function addRole() {
                 },
                 function (err) {
                     if (err) throw err;
-                    console.log("The " + answer.roleTitle + " role with a salary of " + answer.roleSalary + " was successfully added.");
-                    startOptions();
+                    console.log("The " + answer.roleTitle + " role with a salary of " + answer.roleSalary + " was successfully added.".green);
+
+                    viewRoles();
                 }
             );
         });
@@ -135,8 +137,7 @@ function addRole() {
 async function viewRoles() {
 
     let allRoles = await query("SELECT * FROM role");
-    // REF: Learned how to make a "title" for the table by referencing the npm console.table docs
-    console.table("All Roles", allRoles);
+    console.table("All Roles".green, allRoles);
 
     startOptions();
 }
@@ -154,7 +155,6 @@ function addEmployee() {
                 name: "employeeLastName",
                 type: "input",
                 message: "What is the employee's last name?"
-                // PROBABLY NEED TO INCLUDE ASSIGN/CONNECT role_id AND manager_id LATER
             }
         ])
         .then(answer => {
@@ -165,7 +165,8 @@ function addEmployee() {
                 },
                 function (err) {
                     if (err) throw err;
-                    console.log("The " + answer.addDepartment + " department was successfully added.");
+                    console.log(answer.employeeFirstName + " " + answer.employeeLastName + " was successfully added.".green);
+
                     startOptions();
                 }
             );
@@ -177,7 +178,7 @@ async function viewEmployees() {
 
     let allEmployees = await query(`SELECT employee.id,employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, concat(manager.first_name, " ", manager.last_name) AS manager FROM role INNER JOIN department ON department.id = role.department_id RIGHT JOIN employee ON role.id = employee.role_id LEFT JOIN employee manager ON employee.manager_id = manager.id`);
     // REF: Learned how to make a "title" for the table by referencing the npm console.table docs
-    console.table("All Employees", allEmployees);
+    console.table("All Employees".green, allEmployees);
 
     startOptions();
 }
@@ -185,7 +186,7 @@ async function viewEmployees() {
 async function viewEmployeesByDepartment() {
 
     let allEmployeesByDepartment = await query(`SELECT employee.id,employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, concat(manager.first_name, " ", manager.last_name) AS manager FROM role INNER JOIN department ON department.id = role.department_id RIGHT JOIN employee ON role.id = employee.role_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY department.name`);
-    console.table("Employees by Department", allEmployeesByDepartment);
+    console.table("Employees by Department".green, allEmployeesByDepartment);
 
     startOptions();
 }
@@ -193,7 +194,7 @@ async function viewEmployeesByDepartment() {
 async function viewEmployeesByManager() {
 
     let allEmployeesByManager = await query(`SELECT employee.id,employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, concat(manager.first_name, " ", manager.last_name) AS manager FROM role INNER JOIN department ON department.id = role.department_id RIGHT JOIN employee ON role.id = employee.role_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY manager.last_name`);
-    console.table("Employees by Manager", allEmployeesByManager);
+    console.table("Employees by Manager".green, allEmployeesByManager);
 
     startOptions();
 }
@@ -217,7 +218,8 @@ function updateEmployee() {
             connection.query("UPDATE employee SET role_id = ? WHERE id = ?", [answer.updateEmployeeRole, answer.updateEmployeeId],
                 function (err) {
                     if (err) throw err;
-                    console.log("Employee " + answer.updateEmployeeId + "'s role has been updated!");
+                    console.log("Employee " + answer.updateEmployeeId + "'s role has been updated!".green);
+
                     viewEmployees();
                     startOptions();
                 }
