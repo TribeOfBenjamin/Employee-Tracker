@@ -29,12 +29,15 @@ function startOptions() {
             name: "startOptions",
             type: "list",
             message: "Would you like to do?",
-            choices: ["Add a department", "View all departments", "Add a role", "View all roles" , "Add an employee", "View all employees", "View employees by department", "View employees by manager", "Update an employee's role"]
+            choices: ["Add a department", "Delete a department", "View all departments", "Add a role", "View all roles" , "Add an employee", "View all employees", "View employees by department", "View employees by manager", "Update an employee's role"]
         })
         .then(answer => {
             switch (answer.startOptions) {
                 case "Add a department":
                     addDepartment();
+                    break;
+                case "Delete a department":
+                    deleteDepartment();
                     break;
                 case "View all departments":
                     viewDepartments();
@@ -79,6 +82,25 @@ function addDepartment() {
                 function (err) {
                     if (err) throw err;
                     console.log("The " + answer.departmentName + " department was successfully added.".green);
+
+                    viewDepartments();
+                }
+            );
+        });
+};
+
+function deleteDepartment() {
+    inquirer
+        .prompt({
+            name: "departmentDelete",
+            type: "input",
+            message: "What is the ID number of the department you would like to delete?"
+        })
+        .then(answer => {
+            connection.query(`UPDATE department SET name = " " WHERE id = ?`, [answer.departmentDelete],
+                function (err) {
+                    if (err) throw err;
+                    console.log("The " + answer.departmentDelete + " department was successfully deleted.".green);
 
                     viewDepartments();
                 }
